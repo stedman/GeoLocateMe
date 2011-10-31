@@ -1,0 +1,163 @@
+<html>
+<head>
+	<title>Geolocation + Google Maps API v3</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+	<style>
+	@-moz-keyframes pulsate {
+		from {
+			-moz-transform: scale(0.25);
+			opacity: 1.0;
+		}
+		95% {
+			-moz-transform: scale(1.3);
+			opacity: 0;
+		}
+		to {
+			-moz-transform: scale(0.3);
+			opacity: 0;
+		}
+	}
+	@-webkit-keyframes pulsate {
+		from {
+			-webkit-transform: scale(0.25);
+			opacity: 1.0;
+		}
+		95% {
+			-webkit-transform: scale(1.3);
+			opacity: 0;
+		}
+		to {
+			-webkit-transform: scale(0.3);
+			opacity: 0;
+		}
+	}
+	/* get the container that's just outside the marker image, 
+		which just happens to have our Marker title in it */
+	#map_canvas div.gmnoprint[title="I might be here"] {
+		-moz-animation: pulsate 1.5s ease-in-out infinite;
+		-webkit-animation: pulsate 1.5s ease-in-out infinite;
+		border:1pt solid #fff;
+		/* make a circle */
+		-moz-border-radius:51px;
+		-webkit-border-radius:51px;
+		border-radius:51px;
+		/* multiply the shadows, inside and outside the circle */
+		-moz-box-shadow:inset 0 0 5px #06f, inset 0 0 5px #06f, inset 0 0 5px #06f, 0 0 5px #06f, 0 0 5px #06f, 0 0 5px #06f;
+		-webkit-box-shadow:inset 0 0 5px #06f, inset 0 0 5px #06f, inset 0 0 5px #06f, 0 0 5px #06f, 0 0 5px #06f, 0 0 5px #06f;
+		box-shadow:inset 0 0 5px #06f, inset 0 0 5px #06f, inset 0 0 5px #06f, 0 0 5px #06f, 0 0 5px #06f, 0 0 5px #06f;
+		/* set the ring's new dimension and re-center it */
+		height:51px!important;
+		margin:-18px 0 0 -18px;
+		width:51px!important;
+	}
+	/* hide the superfluous marker image since it would expand and shrink with its containing element */
+/*	#map_canvas div[style*="987654"][title] img {*/
+	#map_canvas div.gmnoprint[title="I might be here"] img {
+		display:none;
+	}
+	/* compensate for iPhone and Android devices with high DPI */
+	@media only screen and (-webkit-min-device-pixel-ratio: 1.5){
+		#map_canvas div.gmnoprint[title="I might be here"] {
+			margin:-10px 0 0 -10px;
+		}
+	}
+	</style>
+
+	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true"></script>
+
+	<script type="text/javascript">
+	/* 
+		DEMO FILE FOR: You Are Here (with Safari on iPhone)
+		Created by Steve Stedman on 2009-06-18: http://plebeosaur.us/you-are-here-with-safari-on-iphone/
+		Updated on 2010-02-24: http://plebeosaur.us/iphone-safari-geolocation-map-update/
+		Updated on 2011-10-30: http://plebeosaur.us/here-we-are-again/
+	*/
+	window.plebeosaur = window.plebeosaur || {
+		map: function() {
+			var	// get the page's canvas container
+				mapCanvas = document.getElementById( 'map_canvas' ),
+				// define the Google Maps options
+				map_options = {
+					zoom: 17,
+					// let's initially center on downtown Austin
+					center: new google.maps.LatLng( 30.264664, -97.747378 ),
+					mapTypeId: google.maps.MapTypeId.ROADMAP
+				},
+				// then create the map
+				map = new google.maps.Map( mapCanvas, map_options ),
+				
+				myMarker = 0,
+				displayLocation = function( position ) {
+					// create a new LatLng object for every position update
+					var myLatLng = new google.maps.LatLng( position.coords.latitude, position.coords.longitude );
+
+					// build entire marker first time thru
+					if ( !myMarker ) {
+						// define our custom marker image
+						var image = new google.maps.MarkerImage(
+							'bluedot.png',
+							new google.maps.Size( 17, 17 ), // size
+							new google.maps.Point( 0, 0 ), // origin
+							new google.maps.Point( 8, 8 ) // anchor
+						);
+
+						// then create the new marker
+						myMarker = new google.maps.Marker({
+							flat: true,
+							icon: image,
+							map: map,
+							optimized: false,
+							position: myLatLng,
+							title: 'I might be here',
+							visible: true
+						});
+					
+					// just change marker position on subsequent passes
+					} else {
+						myMarker.setPosition( myLatLng );
+					}
+
+					// center map view on every pass
+					map.setCenter( myLatLng );
+				},
+				handleError = function( error ) {
+					var errorMessage = [ 
+						'We are not quite sure what happened.',
+						'Sorry. Permission to find your location has been denied.',
+						'Sorry. Your position could not be determined.',
+						'Sorry. Timed out.'
+					];
+
+					alert( errorMessage[ error.code ] );
+				},
+				// cache the userAgent
+				useragent = navigator.userAgent;
+
+			// set the map canvas's height/width (Google Maps needs inline height/width)
+			mapCanvas.style.width = mapCanvas.style.height = '100%';
+
+			// allow iPhone or Android to track movement
+			if ( useragent.indexOf('iPhone') !== -1 || useragent.indexOf('Android') !== -1 ) {
+				navigator.geolocation.watchPosition( 
+					displayLocation, 
+					handleError, 
+					{ 
+						enableHighAccuracy: true, 
+						maximumAge: 30000, 
+						timeout: 27000 
+					}
+				);			
+
+			// or let other geolocation capable browsers to get their static position
+			} else if ( navigator.geolocation ) {
+				navigator.geolocation.getCurrentPosition( displayLocation, handleError );
+			}
+		}
+	};
+	</script>
+</head>
+<body onload="plebeosaur.map()">
+	<div id="map_canvas"><!-- map goes here --></div>
+</body>
+</html>
