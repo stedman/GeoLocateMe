@@ -56,8 +56,8 @@
 	#map_canvas div.gmnoprint[title="I might be here"] img {
 		display:none;
 	}
-	/* compensate for iPhone and Android devices with high DPI */
-	@media only screen and (-webkit-min-device-pixel-ratio: 1.5){
+	/* compensate for iPhone and Android devices with high DPI, add iPad media query */
+	@media only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (device-width: 768px) {
 		#map_canvas div.gmnoprint[title="I might be here"] {
 			margin:-10px 0 0 -10px;
 		}
