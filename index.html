@@ -97,9 +97,10 @@
 						// define our custom marker image
 						var image = new google.maps.MarkerImage(
 							'bluedot.png',
-							new google.maps.Size( 17, 17 ), // size
-							new google.maps.Point( 0, 0 ), // origin
-							new google.maps.Point( 8, 8 ) // anchor
+							null, // size
+							null, // origin
+							new google.maps.Point( 8, 8 ), // anchor (move to center of marker)
+							new google.maps.Size( 17, 17 ) // scaled size (required for Retina display icon)
 						);
 
 						// then create the new marker
